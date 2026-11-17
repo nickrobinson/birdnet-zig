@@ -83,6 +83,20 @@ pub fn build(b: *std.Build) void {
         }),
     });
 
+    const lib = b.addLibrary(.{ .name = "miniaudio", .linkage = .static, .root_module = exe.root_module });
+
+    const translated = b.addTranslateC(.{
+        .root_source_file = b.path("vendor/miniaudio/miniaudio.h"),
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+
+    const ma = translated.createModule();
+    ma.linkLibrary(lib);
+
+    exe.root_module.addImport("ma", ma);
+
     // This declares intent for the executable to be installed into the
     // install prefix when running `zig build` (i.e. when executing the default
     // step). By default the install prefix is `zig-out/` but can be overridden
