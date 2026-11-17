@@ -83,7 +83,18 @@ pub fn build(b: *std.Build) void {
         }),
     });
 
-    const lib = b.addLibrary(.{ .name = "miniaudio", .linkage = .static, .root_module = exe.root_module });
+    const lib = b.addLibrary(.{
+        .name = "miniaudio",
+        .linkage = .static,
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        }),
+    });
+    lib.root_module.addCSourceFile(.{
+        .file = b.path("vendor/miniaudio/miniaudio.c"),
+    });
 
     const translated = b.addTranslateC(.{
         .root_source_file = b.path("vendor/miniaudio/miniaudio.h"),
